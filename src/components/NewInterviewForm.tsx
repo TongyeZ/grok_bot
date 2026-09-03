@@ -60,16 +60,18 @@ export function NewInterviewForm() {
           <input
             value={company}
             onChange={(event) => setCompany(event.target.value)}
+            autoComplete="off"
             className={inputClass}
-            placeholder="Stripe"
+            placeholder="Company name"
           />
         </Field>
         <Field label="Role" required>
           <input
             value={role}
             onChange={(event) => setRole(event.target.value)}
+            autoComplete="off"
             className={inputClass}
-            placeholder="Software Engineer Intern"
+            placeholder="Role title"
           />
         </Field>
         <Field label="Job description" required>
@@ -77,6 +79,7 @@ export function NewInterviewForm() {
             value={jobDescription}
             onChange={(event) => setJobDescription(event.target.value)}
             rows={7}
+            autoComplete="off"
             className={`${inputClass} resize-y`}
             placeholder="Paste the posting. The planner uses this to weight competencies."
           />

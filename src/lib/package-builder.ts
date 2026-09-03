@@ -26,8 +26,46 @@ function clonePackage(base: PreparedPackage, difficulty: Difficulty, durationMin
   };
 }
 
+function roleFlavor(role: string): "product" | "backend" | "systems" | "general" {
+  if (/front|ui|ux|design engineer|product engineer/i.test(role)) return "product";
+  if (/sre|systems|infra|edge/i.test(role)) return "systems";
+  if (/backend|platform|data|full.?stack/i.test(role)) return "backend";
+  return "general";
+}
+
+function craftCompetency(role: string): Competency {
+  const flavor = roleFlavor(role);
+  if (flavor === "product") {
+    return {
+      id: "backend",
+      name: "Product Engineering",
+      weight: 20,
+      description: "Ship user-facing systems with judgment about state, sync, and interaction cost.",
+      rationale: `Inferred from the role title (${role}).`,
+      priority: "High",
+    };
+  }
+  if (flavor === "systems") {
+    return {
+      id: "backend",
+      name: "Systems Engineering",
+      weight: 20,
+      description: "Reliability, performance, and failure domains in production systems.",
+      rationale: `Inferred from the role title (${role}).`,
+      priority: "High",
+    };
+  }
+  return {
+    id: "backend",
+    name: flavor === "backend" ? "Backend Engineering" : "Core Craft",
+    weight: 20,
+    description: "Implementation judgment in the stack the role actually uses.",
+    rationale: `Inferred from the role title (${role}) and job description.`,
+    priority: "High",
+  };
+}
+
 function genericCompetencies(role: string): Competency[] {
-  const backendHeavy = /backend|platform|infra|sre|data|full.?stack|software/i.test(role);
   return [
     {
       id: "problem_solving",
@@ -37,14 +75,7 @@ function genericCompetencies(role: string): Competency[] {
       rationale: "Every serious screen watches this before anything else.",
       priority: "High",
     },
-    {
-      id: "backend",
-      name: backendHeavy ? "Backend Engineering" : "Core Craft",
-      weight: 20,
-      description: "Implementation judgment in the stack the role actually uses.",
-      rationale: `Inferred from the role title (${role}) and job description.`,
-      priority: "High",
-    },
+    craftCompetency(role),
     {
       id: "systems",
       name: "System Reasoning",
@@ -81,6 +112,16 @@ function genericCompetencies(role: string): Competency[] {
 }
 
 function genericQuestions(company: string, role: string): PlannedQuestion[] {
+  const flavor = roleFlavor(role);
+  const technicalPrompt =
+    flavor === "product"
+      ? "A collaborative editor you own starts dropping remote updates for some users while others see stale UI. How do you investigate, in order, and what do you refuse to change in the first fifteen minutes?"
+      : "A request path you own has a rising error rate and a latency cliff at p95. How do you investigate, in order, and what do you refuse to change in the first fifteen minutes?";
+  const designPrompt =
+    flavor === "product"
+      ? `Sketch a feature that would be plausible ${role} work at ${company}: a small multiplayer or sync surface. I want the client/server split, stored state, and the two failure modes a user would actually feel.`
+      : `Sketch a service that would be plausible for ${role} work at ${company}. I want the request path, stored state, and the two failure modes you take seriously.`;
+
   return [
     {
       id: "gen_intro",
@@ -101,8 +142,7 @@ function genericQuestions(company: string, role: string): PlannedQuestion[] {
       id: "gen_tech",
       stage: "Technical",
       competencyIds: ["backend", "problem_solving"],
-      prompt:
-        "A request path you own has a rising error rate and a latency cliff at p95. How do you investigate, in order, and what do you refuse to change in the first fifteen minutes?",
+      prompt: technicalPrompt,
       guidedCue: "Start with signals, not fixes.",
       barRaiserConstraint: "Restarting the service is not a diagnosis.",
       followUps: {
@@ -117,7 +157,7 @@ function genericQuestions(company: string, role: string): PlannedQuestion[] {
       id: "gen_design",
       stage: "System Design",
       competencyIds: ["systems", "backend"],
-      prompt: `Sketch a service that would be plausible for ${role} work at ${company}. I want the request path, stored state, and the two failure modes you take seriously.`,
+      prompt: designPrompt,
       guidedCue: "A small first version is better than a complete fiction.",
       barRaiserConstraint: "Failure modes before features.",
       followUps: {
@@ -163,6 +203,22 @@ function genericQuestions(company: string, role: string): PlannedQuestion[] {
 }
 
 function genericRationale(company: string, role: string, type?: InterviewType): DesignRationale[] {
+  const flavor = roleFlavor(role);
+  const craftTitle =
+    flavor === "product"
+      ? "Product Engineering"
+      : flavor === "systems"
+        ? "Systems Engineering"
+        : flavor === "backend"
+          ? "Backend Engineering"
+          : "Core Craft";
+  const craftExplanation =
+    flavor === "product"
+      ? "The work is user-facing. The interviewer will stay on interaction, state, and what a user would feel when this fails."
+      : flavor === "systems"
+        ? "Investigation order, load, and failure domains matter more than trivia from a blog post."
+        : "Investigation order, state, and failure matter more than trivia from a blog post.";
+
   return [
     {
       title: type === "Behavioral" ? "Behavioral / Collaboration" : "System Reasoning",
@@ -179,10 +235,9 @@ function genericRationale(company: string, role: string, type?: InterviewType): 
         "The interviewer will not over-specify the prompt. Watching how you bound the problem is the point.",
     },
     {
-      title: "Backend Engineering",
+      title: craftTitle,
       priority: "High",
-      explanation:
-        "Investigation order, state, and failure matter more than trivia from a blog post.",
+      explanation: craftExplanation,
     },
     {
       title: "Technical Communication",
