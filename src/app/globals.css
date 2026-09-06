@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --canvas: #f4f1ea;
+  --panel: #faf8f3;
+  --sidebar: #ece7dc;
+  --ink: #1b1916;
+  --muted: #6d675f;
+  --faint: #90897e;
+  --line: #d8d1c4;
+  --line-strong: #c4bbaa;
+  --ready: #2c6a4d;
+  --ready-soft: #dceadf;
+  --prep: #9a4d12;
+  --prep-soft: #f3e3d2;
+  --live: #1d4d7a;
+  --live-soft: #d9e4ef;
+  --eval: #5c4578;
+  --eval-soft: #e6dff0;
+  --fail: #9b2c2c;
+  --fail-soft: #f3d6d6;
+  --input: #ffffff;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-sidebar: var(--sidebar);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ready: var(--ready);
+  --color-ready-soft: var(--ready-soft);
+  --color-prep: var(--prep);
+  --color-prep-soft: var(--prep-soft);
+  --color-live: var(--live);
+  --color-live-soft: var(--live-soft);
+  --color-eval: var(--eval);
+  --color-eval-soft: var(--eval-soft);
+  --color-fail: var(--fail);
+  --color-fail-soft: var(--fail-soft);
+  --color-input: var(--input);
+  --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-source-serif);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+::selection {
+  background: #e6dcc6;
+}
+
+@keyframes brief-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes brief-bar {
+  0% {
+    transform: translateX(-40%);
+  }
+  100% {
+    transform: translateX(140%);
+  }
+}
+
+.prep-pulse {
+  animation: brief-pulse 1.6s ease-in-out infinite;
+}
+
+.prep-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.prep-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: brief-bar 1.8s ease-in-out infinite;
+}
